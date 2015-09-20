@@ -1,0 +1,119 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:background="#fff7ffc9"
+    android:paddingBottom="10dp"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp" android:paddingTop="10dp"
+    tools:context=".AnotasiActivity">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="0.15"
+        android:background="#fff8ffb1"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btnPilihBerkas"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="Pilih Berkas"/>
+
+        <Button
+            android:id="@+id/btnCekBerkas"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="Cek Berkas"/>
+
+        <TextView
+            android:id="@+id/infoNamaBerkas"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:text="Nama Berkas : "/>
+
+        <TextView
+            android:id="@+id/namaBerkas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/infoLokasiBerkas"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:text="Lokasi Berkas : "/>
+
+        <TextView
+            android:id="@+id/lokasiBerkas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/infoResolusi"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:text="Resolusi : "/>
+
+        <TextView
+            android:id="@+id/resolusi"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"/>
+
+        <TextView
+            android:id="@+id/infoJumlahMembran"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:text="Jumlah membran : 0"/>
+
+        <Button
+            android:id="@+id/btnSimpanMembran"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="Simpan Membran"/>
+
+        <Button
+            android:id="@+id/btnSimpan"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="Simpan Anotasi"/>
+
+        <TextView
+            android:id="@+id/XY1"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:text="X1:     || Y1:      "/>
+
+        <TextView
+            android:id="@+id/XY2"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:text="X2:     || Y2:      "/>
+
+        <TextView
+            android:id="@+id/skala"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:text="skala : "/>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/aa"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="0.75"
+        android:background="#ffb9ffe1"
+        android:orientation="vertical">
+
+
+        <!--<com.demeg.anotasiline.MultiTouch.TouchImageView-->
+        <!--<com.demeg.anotasiline.ImageViewNew.GestureImageView-->
+        <ImageView
+            android:id="@+id/gambar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"/>
+
+    </LinearLayout>
+
+</LinearLayout>
