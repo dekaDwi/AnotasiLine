@@ -418,6 +418,12 @@ public class GestureImageView extends ImageView  {
 	public int getScaledHeight() {
 		return Math.round(getImageHeight() * getScale());
 	}
+
+	public float getCurrentScale() { return gestureImageViewTouchListener.getCurrentScale(); }
+
+	public int[] getImageWidthHeight() { return new int[]{gestureImageViewTouchListener.getImageWidthHeight()[0], gestureImageViewTouchListener.getImageWidthHeight()[1]}; }
+
+	public int[] getDisplayImageWidthHeight() { return new int[]{gestureImageViewTouchListener.getDisplayImageWidthHeight()[0], gestureImageViewTouchListener.getDisplayImageWidthHeight()[1]}; }
 	
 	public int getImageWidth() {
 		if(drawable != null) {

@@ -105,10 +105,9 @@
         android:background="#ffb9ffe1"
         android:orientation="vertical">
 
-
+        <!--<ImageView-->
         <!--<com.demeg.anotasiline.MultiTouch.TouchImageView-->
-        <!--<com.demeg.anotasiline.ImageViewNew.GestureImageView-->
-        <ImageView
+        <com.demeg.anotasiline.ImageViewNew.GestureImageView
             android:id="@+id/gambar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

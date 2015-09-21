@@ -80,6 +80,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	private GestureDetector flingDetector;
 	private GestureImageViewListener imageListener;
 	private float getTop, getLeft;
+	private float XX, YY;
 
 	public GestureImageViewTouchListener(final GestureImageView image, int displayWidth, int displayHeight) {
 		super();
@@ -123,6 +124,8 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 			public void onComplete() {
 			}
 		});
+
+
 
 		zoomAnimation.setZoom(2.0f);
 		zoomAnimation.setZoomAnimationListener(new ZoomAnimationListener() {
@@ -531,6 +534,8 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		this.fitScaleVertical = fitScaleVertical;
 	}
 
+	public float[] getNextXY(){ return new float[]{next.x, next.y};}
+
 	protected void boundCoordinates() {
 		if(next.x < boundaryLeft) {
 			next.x = boundaryLeft;
@@ -546,6 +551,14 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 			next.y = boundaryBottom;
 		}
 	}
+
+	public float getCurrentScale(){
+		return currentScale;
+	}
+
+	public int[] getImageWidthHeight() {return new int[]{imageWidth, imageHeight};}
+
+	public int[] getDisplayImageWidthHeight() {return new int[]{displayWidth, displayHeight};}
 	
 	protected void calculateBoundaries() {
 		
