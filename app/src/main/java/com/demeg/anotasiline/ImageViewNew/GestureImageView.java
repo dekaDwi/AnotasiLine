@@ -376,18 +376,45 @@ public class GestureImageView extends ImageView  {
 	}
 
 	protected void initImage() {
-		if(this.drawable != null) {
+//		if(this.drawable != null) {
+//			this.drawable.setAlpha(alpha);
+//			this.drawable.setFilterBitmap(true);
+//			if(colorFilter != null) {
+//				this.drawable.setColorFilter(colorFilter);
+//			}
+//		}
+//
+//		if(!layout) {
+//			requestLayout();
+//			redraw();
+//		}
+		if (this.drawable != null) {
 			this.drawable.setAlpha(alpha);
 			this.drawable.setFilterBitmap(true);
-			if(colorFilter != null) {
+			if (colorFilter != null) {
 				this.drawable.setColorFilter(colorFilter);
 			}
+			// Keppel.Cao
+			layout = false;
+			startingScale = -1.0f;
 		}
-		
-		if(!layout) {
+
+		if (!layout) {
 			requestLayout();
-			redraw();
+			// Keppel.Cao
+			// redraw();
+			reset();
 		}
+	}
+
+	public void setTo(float newX, float newY, float newScale) {
+		x = newX;
+		y = newY;
+		scaleAdjust = newScale;
+		if (gestureImageViewTouchListener != null) {
+			gestureImageViewTouchListener.setTo(newX, newY, newScale);
+		}
+		redraw();
 	}
 
 	public void setImageBitmap(Bitmap image) {
@@ -419,11 +446,11 @@ public class GestureImageView extends ImageView  {
 		return Math.round(getImageHeight() * getScale());
 	}
 
-	public float getCurrentScale() { return gestureImageViewTouchListener.getCurrentScale(); }
+//	public float getCurrentScale() { return gestureImageViewTouchListener.getCurrentScale(); }
 
-	public int[] getImageWidthHeight() { return new int[]{gestureImageViewTouchListener.getImageWidthHeight()[0], gestureImageViewTouchListener.getImageWidthHeight()[1]}; }
+//	public int[] getImageWidthHeight() { return new int[]{gestureImageViewTouchListener.getImageWidthHeight()[0], gestureImageViewTouchListener.getImageWidthHeight()[1]}; }
 
-	public int[] getDisplayImageWidthHeight() { return new int[]{gestureImageViewTouchListener.getDisplayImageWidthHeight()[0], gestureImageViewTouchListener.getDisplayImageWidthHeight()[1]}; }
+//	public int[] getDisplayImageWidthHeight() { return new int[]{gestureImageViewTouchListener.getDisplayImageWidthHeight()[0], gestureImageViewTouchListener.getDisplayImageWidthHeight()[1]}; }
 	
 	public int getImageWidth() {
 		if(drawable != null) {
@@ -467,7 +494,7 @@ public class GestureImageView extends ImageView  {
 		}
 	}
 
-	public float [] getTopLeft() { return gestureImageViewTouchListener.getTopLeft(); }
+//	public float [] getTopLeft() { return gestureImageViewTouchListener.getTopLeft(); }
 
 	public float getScale() {
 		return scaleAdjust;
@@ -476,6 +503,8 @@ public class GestureImageView extends ImageView  {
 	public void setScale(float scale) {
 		scaleAdjust = scale;
 	}
+
+//	public float[] getEXY() { return new float[]{gestureImageViewTouchListener.getEXY()[0], gestureImageViewTouchListener.getEXY()[1]};}
 
 	public float getImageX() {
 		return x;

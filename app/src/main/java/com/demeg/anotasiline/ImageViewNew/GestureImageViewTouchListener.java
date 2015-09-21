@@ -32,46 +32,35 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	private final PointF midpoint = new PointF();
 	private final VectorF scaleVector = new VectorF();
 	private final VectorF pinchVector = new VectorF();
+	public float tX;
+	public float tY;
 	private GestureImageView image;
 	private OnClickListener onClickListener;
 	private boolean touched = false;
 	private boolean inZoom = false;
-	
 	private float initialDistance;
 	private float lastScale = 1.0f;
 	private float currentScale = 1.0f;
-	
 	private float boundaryLeft = 0;
 	private float boundaryTop = 0;
 	private float boundaryRight = 0;
 	private float boundaryBottom = 0;
-	
 	private float maxScale = 5.0f;
 	private float minScale = 0.25f;
 	private float fitScaleHorizontal = 1.0f;
 	private float fitScaleVertical = 1.0f;
-	
 	private int canvasWidth = 0;
 	private int canvasHeight = 0;
-	
 	private float centerX = 0;
 	private float centerY = 0;
-	
 	private float startingScale = 0;
-	
 	private boolean canDragX = false;
 	private boolean canDragY = false;
-	
 	private boolean multiTouch = false;
-	
 	private int displayWidth;
 	private int displayHeight;
-	
 	private int imageWidth;
 	private int imageHeight;
-
-
-	
 	private FlingListener flingListener;
 	private FlingAnimation flingAnimation;
 	private ZoomAnimation zoomAnimation;
@@ -178,7 +167,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		calculateBoundaries();
 		calculateTopLeft();
 	}
-
+	
 	protected void calculateTopLeft() {
 		int effectiveWidth = Math.round( (float) imageWidth * currentScale );
 		int effectiveHeight = Math.round( (float) imageHeight * currentScale );
@@ -193,7 +182,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		float [] topLeft = {getTop, getLeft};
 		return topLeft;
 	}
-	
+
 	private void startFling() {
 		flingAnimation.setVelocityX(flingListener.getVelocityX());
 		flingAnimation.setVelocityY(flingListener.getVelocityY());
@@ -205,6 +194,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		zoomAnimation.reset();
 		
 		float zoomTo;
+
 		
 		if(image.isLandscape()) {
 			if(image.getDeviceOrientation() == Configuration.ORIENTATION_PORTRAIT) {
@@ -277,7 +267,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 				}
 			}
 		}
-		
+
 		zoomAnimation.setZoom(zoomTo);
 		image.animationStart(zoomAnimation);
 	}
@@ -286,6 +276,12 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	private void stopAnimations() {
 		image.animationStop();
 	}
+
+	public void setEXY(float x, float y) {
+		XX = x;
+		YY = y;
+	}
+	public float[] getEXY() { return new float[]{XX, YY}; }
 	
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
@@ -363,6 +359,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 							next.y = image.getImageY();
 						}
 						else if(!multiTouch) {
+							setEXY(event.getX(), event.getY());
 //							if(handleDrag(event.getX(), event.getY())) {
 //								image.redraw();
 //							}
@@ -373,6 +370,17 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		}
 		
 		return true;
+	}
+
+	public void setTo(float newX, float newY, float newScale) {
+		currentScale = newScale;
+		lastScale = newScale;
+		next.x = newX;
+		next.y = newY;
+		calculateBoundaries();
+		image.setScale(currentScale);
+		image.setPosition(next.x, next.y);
+		image.redraw();
 	}
 	
 	protected void handleUp() {
