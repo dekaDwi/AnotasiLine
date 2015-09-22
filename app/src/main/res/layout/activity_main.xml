@@ -76,30 +76,6 @@
             android:layout_height="50dp"
             android:text="Simpan Anotasi"/>
 
-        <!--<Button-->
-            <!--android:id="@+id/btnZoom"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="50dp"-->
-            <!--android:text="ZOOM TO"/>-->
-
-        <TextView
-            android:id="@+id/XY1"
-            android:layout_width="match_parent"
-            android:layout_height="25dp"
-            android:text="X1:     || Y1:      "/>
-
-        <TextView
-            android:id="@+id/XY2"
-            android:layout_width="match_parent"
-            android:layout_height="25dp"
-            android:text="X2:     || Y2:      "/>
-
-        <TextView
-            android:id="@+id/skala"
-            android:layout_width="match_parent"
-            android:layout_height="25dp"
-            android:text="skala : "/>
-
     </LinearLayout>
 
 
@@ -112,7 +88,6 @@
         android:orientation="vertical">
 
         <!--<ImageView-->
-        <!--<com.demeg.anotasiline.ImageViewNew.GestureImageView-->
         <com.demeg.anotasiline.TouchImageViewNew.TouchImageView
             android:id="@+id/gambar"
             android:layout_width="wrap_content"

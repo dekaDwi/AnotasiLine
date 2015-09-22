@@ -9,7 +9,6 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -39,16 +38,11 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Stack;
 
-//import com.demeg.anotasiline.ImageViewNew.GestureImageView;
-//import com.demeg.anotasiline.MultiTouch.TouchImageView;
-
-
 public class MainActivity extends ActionBarActivity {
 
     final int RQS_IMAGE1 = 1;
-    Button btnLoadImage, simpanMembran, simpanAnotasi, cekBerkas, zoomTo;
-    TextView textJudul, textLokasi, textResolusi, jumlahMembran, xy1, xy2, skala;
-//    GestureImageView imageResult;
+    Button btnLoadImage, simpanMembran, simpanAnotasi, cekBerkas;
+    TextView textJudul, textLokasi, textResolusi, jumlahMembran;
     TouchImageView imageResult;
 //    ImageView imageResult;
     Drawable drawable;
@@ -81,13 +75,8 @@ public class MainActivity extends ActionBarActivity {
         textResolusi = (TextView)findViewById(R.id.resolusi);
         textLokasi = (TextView)findViewById(R.id.lokasiBerkas);
         jumlahMembran = (TextView)findViewById(R.id.infoJumlahMembran);
-//        imageResult = (GestureImageView)findViewById(R.id.gambar);
         imageResult = (TouchImageView)findViewById(R.id.gambar);
 //        imageResult = (ImageView)findViewById(R.id.gambar);
-        xy1 = (TextView)findViewById(R.id.XY1);
-        xy2 = (TextView)findViewById(R.id.XY2);
-        skala = (TextView)findViewById(R.id.skala);
-//        zoomTo = (Button)findViewById(R.id.btnZoom);
         s = new Sel();
         sTemp = new Sel();
         boleh = false;
@@ -98,6 +87,7 @@ public class MainActivity extends ActionBarActivity {
                 Intent intent = new Intent(Intent.ACTION_PICK,
                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(intent, RQS_IMAGE1);
+                imageResult.resetZoom();
                 s = new Sel();
                 sTemp = new Sel();
                 cekBerkas.setEnabled(true);
@@ -125,91 +115,13 @@ public class MainActivity extends ActionBarActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 //boleh ==> jika sudah melakukan cek berkas
                 if (boleh) {
-
-                    //catatan
-                    //imageResult.getScale() --> gambar yang sudah dizooming / gambar asli
-                    //imageResult.getWidth()/.getHeight() --> lebar dan tinggi imageView
-                    //imageResult.getScaleWidth()/.getScaleHeight() --> lebar dan tinggi gambar setelah dizooming
-                    //imageResult.getImageWidth()/.getImageHeight() --> lebar dan tinggi gambar asli
-
                     int action = event.getAction();
-//                    float skl = imageResult.getScale(); //s
-//                    float ww = imageResult.getWidth();
-//                    float hh = imageResult.getHeight();
-//                    float ww2 = imageResult.getScaledWidth();
-//                    float hh2 = imageResult.getScaledHeight();
-//                    float ww3 = imageResult.getImageWidth(); //wb
-//                    float hh3 = imageResult.getImageHeight(); //hb
-//                    float tengahX = ww / 2.0f; //xp
-//                    float tengahY = hh / 2.0f; //yp
-//                    float tengahAX = ww2 / 2.0f;
-//                    float tengahAY = hh2 / 2.0f;
-//                    float skl2 = ww3 / ww;
                     x = (int) event.getX();
                     y = (int) event.getY();
-                    int originalX = (int) getPointerCoords(imageResult, event)[0];
-                    int originalY = (int) getPointerCoords(imageResult, event)[1];
-
-//                    //( ( s * wb ) / 2  ) - xp
-//                    float xo = ((skl2 * ww3) / 2.0f) - tengahAX;
-//                    //( ( s * hb ) / 2  ) - yp
-//                    float yo = ((skl2 * hh3) / 2.0f) - tengahAY;
-//
-//                    //bmpX = (eventX + x) / skala, bmpY = (eventY + y) / skala
-//                    float xb = (x + xo) / skl2;
-//                    float yb = (y + yo) / skl2;
-//
-//
-//                    int effectiveWidth = Math.round(ww3 * skl);
-//                    int effectiveHeight = Math.round(hh3 * skl);
-//
-//                    float diff1 = (ww2 - ww) / 2.0f;
-//                    float left = tengahAX - diff1;
-//                    float right = tengahAX + diff1;
-//
-//                    float diff2 = (hh2 - hh) / 2.0f;
-//                    float top = tengahAY - diff2;
-//                    float bottom = tengahAY + diff2;
-//
-//                    int tXD = Math.round(ww2 / 2.0f);
-//                    int tYD = Math.round(hh2 / 2.0f);
-//
-//                    int lawanT = Math.round(tengahY - top);
-//                    int lawanL = Math.round(tengahX - left);
-//
-//                    int tengahAbY = Math.round((top + lawanT) * skl2);
-//                    int tengahAbX = Math.round((left + lawanL) * skl2);
-//
-//                    int sentuhX = Math.round((x) - (left * skl2));
-//                    int sentuhY = Math.round((y) - (top * skl2));
-////                    int sentuhX = Math.round(imageResult.getTXY()[0]);
-////                    int sentuhY = Math.round(imageResult.getTXY()[1]);
-
-//                    xy1.setText("left : " + ww2 + " || top : " + hh2);
-//                    xy2.setText("L : " + sentuhX + " || T : " + sentuhY);
-//                    skala.setText("hh2 : " + imageResult.getImageX() + " || ww2 : " + imageResult.getImageY());
-//                    point((int) imageResult.getImageX(), (int) imageResult.getImageY(), 2);
-
-                    RectF coba = imageResult.getZoomedRect();
-
-
-                    int top = Math.round(coba.top * bitmapMaster.getHeight());
-                    int left = Math.round(coba.left * bitmapMaster.getWidth());
-                    xy1.setText("L : " + left + " || T : " + top);
-//                    point2(left, top, 2);
-
-//                    int xN = left + Math.round(x * imageResult.getCurrentZoom());
-//                    int yN = top + Math.round(y * imageResult.getCurrentZoom());
-
                     PointF bitmapPoint = imageResult.transformCoordTouchToBitmap(event.getX(), event.getY(), true);
                     PointF normalizedBitmapPoint = new PointF(bitmapPoint.x / bitmapMaster.getWidth(), bitmapPoint.y / bitmapMaster.getHeight());
                     int xN = Math.round(normalizedBitmapPoint.x * bitmapMaster.getWidth());
                     int yN = Math.round(normalizedBitmapPoint.y * bitmapMaster.getHeight());
-                    xy2.setText("L : " + xN + " || T : " + yN);
-//                    point2(xN, yN, 3);
-
-                    skala.setText("skala : " + imageResult.getCurrentZoom());
-
                     Bitmap b;
                     switch (action) {
                         case MotionEvent.ACTION_DOWN:
@@ -237,10 +149,7 @@ public class MainActivity extends ActionBarActivity {
                         case MotionEvent.ACTION_MOVE:
                             //menandai sel/membran
                             cnt = 1;
-//                            point(originalX, originalY, 1);
                             point2(xN, yN, 1);
-//
-//                            point2(sentuhX, sentuhY, 3);
                             if (xN >= 0 && yN >= 0 && xN <= bitmapMaster.getWidth() && yN <= bitmapMaster.getHeight()) {
                                 s.enQueue(xN, yN);
                             }
@@ -398,28 +307,20 @@ public class MainActivity extends ActionBarActivity {
         if(s != null) {
             e = s.head;
             if(e != null) {
-                x = (int)coba(imageResult, e.x, e.y)[0];/* e.x;*/
-                y = (int)coba(imageResult, e.x, e.y)[1];/* e.y;*/
-                point(x, y, 2);
+                point2(e.x, e.y, 2);
                 while(e.next != null) {
                     e = e.next;
-                    x = (int)coba(imageResult, e.x, e.y)[0];/* e.x;*/
-                    y = (int)coba(imageResult, e.x, e.y)[1];/* e.y;*/
-                    point(x, y, 2);
+                    point2(e.x, e.y, 2);
                 }
             }
             while(s.next != null) {
                 s = s.next;
                 e = s.head;
                 if(e != null) {
-                    x = (int)coba(imageResult, e.x, e.y)[0];/* e.x;*/
-                    y = (int)coba(imageResult, e.x, e.y)[1];/* e.y;*/
-                    point(x, y, 2);
+                    point2(e.x, e.y, 2);
                     while(e.next != null) {
                         e = e.next;
-                        x = (int)coba(imageResult, e.x, e.y)[0];/* e.x;*/
-                        y = (int)coba(imageResult, e.x, e.y)[1];/* e.y;*/
-                        point(x, y, 2);
+                        point2(e.x, e.y, 2);
                     }
                 }
             }
@@ -462,7 +363,7 @@ public class MainActivity extends ActionBarActivity {
             paint.setStyle(Paint.Style.FILL);
             switch (kondisi) {
                 case 1 :
-                    paint.setColor(Color.GREEN);
+                    paint.setColor(Color.YELLOW);
                     break;
                 case 2 :
                     paint.setColor(Color.RED);
