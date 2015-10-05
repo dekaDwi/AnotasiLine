@@ -26,6 +26,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.demeg.anotasiline.TouchImageViewNew.TouchImageView;
+import com.demeg.anotasiline.matriks.Bezier;
+import com.demeg.anotasiline.matriks.Matriks;
+import com.demeg.anotasiline.matriks.Spline;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -36,14 +39,17 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 public class MainActivity extends ActionBarActivity {
 
     final int RQS_IMAGE1 = 1;
-    Button btnLoadImage, simpanMembran, simpanAnotasi, cekBerkas;
+    Button btnLoadImage, simpanMembran, simpanAnotasi/*, cekBerkas*/;
     TextView textJudul, textLokasi, textResolusi, jumlahMembran;
     TouchImageView imageResult;
+    List<float[]> l = new ArrayList<float[]>();
 //    ImageView imageResult;
     Drawable drawable;
     Rect imageBounds;
@@ -52,12 +58,12 @@ public class MainActivity extends ActionBarActivity {
     int x, y, cnt = 0;
     String lks;
     double scalH, scalW;
-    boolean boleh;
+    boolean boleh = false;
     Uri source;
-    Bitmap bitmapMaster;
+    Bitmap bitmapMaster, b;
     Canvas canvasMaster;
     Stack<Bitmap> undos = new Stack<Bitmap>();
-    Stack<Bitmap> undos2 = new Stack<Bitmap>();
+//    Stack<Bitmap> undos2 = new Stack<Bitmap>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +71,8 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         btnLoadImage = (Button)findViewById(R.id.btnPilihBerkas);
-        cekBerkas = (Button)findViewById(R.id.btnCekBerkas);
-        cekBerkas.setEnabled(false);
+//        cekBerkas = (Button)findViewById(R.id.btnCekBerkas);
+//        cekBerkas.setEnabled(false);
         simpanMembran = (Button)findViewById(R.id.btnSimpanMembran);
         simpanMembran.setEnabled(false);
         simpanAnotasi = (Button)findViewById(R.id.btnSimpan);
@@ -79,7 +85,7 @@ public class MainActivity extends ActionBarActivity {
 //        imageResult = (ImageView)findViewById(R.id.gambar);
         s = new Sel();
         sTemp = new Sel();
-        boleh = false;
+        b = null;
 
         btnLoadImage.setOnClickListener(new OnClickListener() {
             @Override
@@ -88,27 +94,30 @@ public class MainActivity extends ActionBarActivity {
                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(intent, RQS_IMAGE1);
                 imageResult.resetZoom();
+//                b.recycle();
                 s = new Sel();
                 sTemp = new Sel();
-                cekBerkas.setEnabled(true);
                 boleh = false;
+//                cekBerkas.setEnabled(true);
+//                boleh = false;
                 simpanMembran.setEnabled(false);
                 simpanAnotasi.setEnabled(false);
                 undos.clear();
-                undos2.clear();
+//                undos2.clear();
                 Membran = new KelompokSel("Membran");
                 jumlahMembran.setText("Jumlah membran : " + Membran.count);
+                cnt = 0;
             }
         });
 
-        cekBerkas.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                readFile();
-                boleh = true;
-                cekBerkas.setEnabled(false);
-            }
-        });
+//        cekBerkas.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                readFile();
+//                boleh = true;
+//                cekBerkas.setEnabled(false);
+//            }
+//        });
 
         imageResult.setOnTouchListener(new OnTouchListener() {
             @Override
@@ -122,11 +131,13 @@ public class MainActivity extends ActionBarActivity {
                     PointF normalizedBitmapPoint = new PointF(bitmapPoint.x / bitmapMaster.getWidth(), bitmapPoint.y / bitmapMaster.getHeight());
                     int xN = Math.round(normalizedBitmapPoint.x * bitmapMaster.getWidth());
                     int yN = Math.round(normalizedBitmapPoint.y * bitmapMaster.getHeight());
-                    Bitmap b;
+//                    Bitmap b;
                     switch (action) {
                         case MotionEvent.ACTION_DOWN:
+                            textResolusi.setText("DOWN");
                             if (cnt == 0) {
                                 //menyimpan bitmap awal, untuk semacam undo
+
                                 b = Bitmap.createBitmap(bitmapMaster);
                                 undos.push(b);
                                 b = null;
@@ -138,6 +149,7 @@ public class MainActivity extends ActionBarActivity {
                                 cnt = 0;
                                 b = undos.pop();
                                 canvasMaster.drawBitmap(b, 0, 0, null);
+                                l = new ArrayList<float[]>();
                                 undos.push(b);
                                 b = null;
                                 s = new Sel();
@@ -146,8 +158,21 @@ public class MainActivity extends ActionBarActivity {
                             }
                             simpanMembran.setEnabled(false);
                             break;
+                        case MotionEvent.ACTION_UP:
+                            textResolusi.setText("UP");
+                            float[][] a = new float[l.size()][2];
+                            for (int i = 0; i < l.size(); i++) {
+                                for (int j = 0; j < 2; j++) {
+                                    a[i][j] = l.get(i)[j];
+                                }
+                            }
+                            closeSpline(a);
+                            break;
                         case MotionEvent.ACTION_MOVE:
                             //menandai sel/membran
+                            textResolusi.setText("MOVE");
+                            float[] titik = {xN, yN};
+                            l.add(titik);
                             cnt = 1;
                             point2(xN, yN, 1);
                             if (xN >= 0 && yN >= 0 && xN <= bitmapMaster.getWidth() && yN <= bitmapMaster.getHeight()) {
@@ -198,6 +223,49 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
+    }
+
+    public void closeSpline(float[][] a) {
+//        textJudul.setText(l.size());
+//        float[][] a = new float[l.size()][2];
+//        for (int i = 0; i < l.size(); i++) {
+//            for (int j = 0; j < 2; j++) {
+//                a[i][j] = l.get(i)[j];
+//            }
+//        }
+        if (a.length <= 3) {
+            return;
+        }
+//        textJudul.setText("Gambar Kurva");
+        float[][] a2 = new float[a.length + 2][a[0].length];
+        for (int i = 0; i < a.length; i++) {
+            System.arraycopy(a[i], 0, a2[i], 0, 2); //1
+        }
+        System.arraycopy(a[1], 0, a2[a.length], 0, 2); //1
+        System.arraycopy(a[2], 0, a2[a.length+1], 0, 2); //1
+        float[][] m1 = Matriks.invers(Spline.m1(a2));
+        float[][] m2 = Spline.m2(a2);
+        float[][] m3 = Matriks.kaliMatrix(m1, m2); //3
+        float[][] m3m = new float[m3.length + 2][2]; //5
+        System.arraycopy(a2[0], 0, m3m[0], 0, 2); //1
+        for (int i = 1; i < m3m.length - 1; i++) { //2-4
+            System.arraycopy(m3[i - 1], 0, m3m[i], 0, 2); //1
+        }
+        System.arraycopy(a2[a2.length - 1], 0, m3m[m3m.length - 1], 0, 2); //1
+
+        for (int i = 1; i < a2.length - 2; i++) {
+            float[] s1 = a2[i];
+            float[] b1 = m3m[i];
+            float[] b2 = m3m[i + 1];
+            float[] s2 = a2[i + 1];
+            float[][] t1 = Spline.tengah(s1, b1, b2, s2);
+            float[][] t2 = Matriks.kaliMatrix(Matriks.kaliMatrix(t1, Bezier.basisBezier), Bezier.nilaiT());
+            for (int b = 0; b < t2[0].length; b++) {
+                int x = Math.round(t2[1][b]);
+                int y = Math.round(t2[0][b]);
+                point2(y,x,3);
+            }
+        }
     }
 
     //membalikkan koordinat dari koordinat scale image menjadi koordinat asli
@@ -414,6 +482,8 @@ public class MainActivity extends ActionBarActivity {
                         int x = bitmapMaster.getWidth();
                         int y = bitmapMaster.getHeight();
                         textResolusi.setText(x + " x " + y);
+                        readFile();
+                        boleh = true;
 //                        xy1.setText("X1: " + imageResult.getTopLeft()[1] + "   || Y1: " + imageResult.getTopLeft()[0]);
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();

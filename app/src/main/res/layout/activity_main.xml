@@ -19,11 +19,11 @@
             android:layout_height="50dp"
             android:text="Pilih Berkas"/>
 
-        <Button
-            android:id="@+id/btnCekBerkas"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:text="Cek Berkas"/>
+        <!--<Button-->
+            <!--android:id="@+id/btnCekBerkas"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="50dp"-->
+            <!--android:text="Cek Berkas"/>-->
 
         <TextView
             android:id="@+id/infoNamaBerkas"
