@@ -46,11 +46,10 @@ import java.util.Stack;
 public class MainActivity extends ActionBarActivity {
 
     final int RQS_IMAGE1 = 1;
-    Button btnLoadImage, simpanMembran, simpanAnotasi/*, cekBerkas*/;
+    Button btnLoadImage, simpanMembran, simpanAnotasi;
     TextView textJudul, textLokasi, textResolusi, jumlahMembran;
     TouchImageView imageResult;
     List<float[]> l = new ArrayList<float[]>();
-//    ImageView imageResult;
     Drawable drawable;
     Rect imageBounds;
     KelompokSel Membran;
@@ -63,7 +62,6 @@ public class MainActivity extends ActionBarActivity {
     Bitmap bitmapMaster, b;
     Canvas canvasMaster;
     Stack<Bitmap> undos = new Stack<Bitmap>();
-//    Stack<Bitmap> undos2 = new Stack<Bitmap>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +69,6 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         btnLoadImage = (Button)findViewById(R.id.btnPilihBerkas);
-//        cekBerkas = (Button)findViewById(R.id.btnCekBerkas);
-//        cekBerkas.setEnabled(false);
         simpanMembran = (Button)findViewById(R.id.btnSimpanMembran);
         simpanMembran.setEnabled(false);
         simpanAnotasi = (Button)findViewById(R.id.btnSimpan);
@@ -82,7 +78,6 @@ public class MainActivity extends ActionBarActivity {
         textLokasi = (TextView)findViewById(R.id.lokasiBerkas);
         jumlahMembran = (TextView)findViewById(R.id.infoJumlahMembran);
         imageResult = (TouchImageView)findViewById(R.id.gambar);
-//        imageResult = (ImageView)findViewById(R.id.gambar);
         s = new Sel();
         sTemp = new Sel();
         b = null;
@@ -94,30 +89,18 @@ public class MainActivity extends ActionBarActivity {
                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(intent, RQS_IMAGE1);
                 imageResult.resetZoom();
-//                b.recycle();
                 s = new Sel();
                 sTemp = new Sel();
                 boleh = false;
-//                cekBerkas.setEnabled(true);
-//                boleh = false;
+                l = new ArrayList<float[]>();
                 simpanMembran.setEnabled(false);
                 simpanAnotasi.setEnabled(false);
                 undos.clear();
-//                undos2.clear();
                 Membran = new KelompokSel("Membran");
                 jumlahMembran.setText("Jumlah membran : " + Membran.count);
                 cnt = 0;
             }
         });
-
-//        cekBerkas.setOnClickListener(new OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                readFile();
-//                boleh = true;
-//                cekBerkas.setEnabled(false);
-//            }
-//        });
 
         imageResult.setOnTouchListener(new OnTouchListener() {
             @Override
@@ -134,10 +117,9 @@ public class MainActivity extends ActionBarActivity {
 //                    Bitmap b;
                     switch (action) {
                         case MotionEvent.ACTION_DOWN:
-                            textResolusi.setText("DOWN");
                             if (cnt == 0) {
                                 //menyimpan bitmap awal, untuk semacam undo
-
+                                l = new ArrayList<float[]>();
                                 b = Bitmap.createBitmap(bitmapMaster);
                                 undos.push(b);
                                 b = null;
@@ -159,7 +141,6 @@ public class MainActivity extends ActionBarActivity {
                             simpanMembran.setEnabled(false);
                             break;
                         case MotionEvent.ACTION_UP:
-                            textResolusi.setText("UP");
                             float[][] a = new float[l.size()][2];
                             for (int i = 0; i < l.size(); i++) {
                                 for (int j = 0; j < 2; j++) {
@@ -170,15 +151,10 @@ public class MainActivity extends ActionBarActivity {
                             break;
                         case MotionEvent.ACTION_MOVE:
                             //menandai sel/membran
-                            textResolusi.setText("MOVE");
                             float[] titik = {xN, yN};
                             l.add(titik);
                             cnt = 1;
                             point2(xN, yN, 1);
-                            if (xN >= 0 && yN >= 0 && xN <= bitmapMaster.getWidth() && yN <= bitmapMaster.getHeight()) {
-                                s.enQueue(xN, yN);
-                            }
-                            sTemp.enQueue(xN, yN);
                             simpanMembran.setEnabled(true);
                             break;
                     }
@@ -226,17 +202,9 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void closeSpline(float[][] a) {
-//        textJudul.setText(l.size());
-//        float[][] a = new float[l.size()][2];
-//        for (int i = 0; i < l.size(); i++) {
-//            for (int j = 0; j < 2; j++) {
-//                a[i][j] = l.get(i)[j];
-//            }
-//        }
         if (a.length <= 3) {
             return;
         }
-//        textJudul.setText("Gambar Kurva");
         float[][] a2 = new float[a.length + 2][a[0].length];
         for (int i = 0; i < a.length; i++) {
             System.arraycopy(a[i], 0, a2[i], 0, 2); //1
@@ -264,6 +232,8 @@ public class MainActivity extends ActionBarActivity {
                 int x = Math.round(t2[1][b]);
                 int y = Math.round(t2[0][b]);
                 point2(y,x,3);
+                s.enQueue(y, x);
+                sTemp.enQueue(y, x);
             }
         }
     }
