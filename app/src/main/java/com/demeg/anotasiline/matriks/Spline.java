@@ -1,7 +1,7 @@
 package com.demeg.anotasiline.matriks;
 
 /**
- * Created by demeg on 05-Oct-15.
+ * Created by deka dwi on 05-Oct-15.
  */
 public class Spline {
 

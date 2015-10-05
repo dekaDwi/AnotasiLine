@@ -1,7 +1,7 @@
 package com.demeg.anotasiline.matriks;
 
 /**
- * Created by demeg on 01-Oct-15.
+ * Created by deka dwi on 01-Oct-15.
  */
 public class Matriks {
     public static float[][] invers(float[][] matrix) {

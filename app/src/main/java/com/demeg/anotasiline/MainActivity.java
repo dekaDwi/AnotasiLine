@@ -1,5 +1,9 @@
 package com.demeg.anotasiline;
 
+/**
+ * Updated by deka dwi on 01-Oct-15.
+ */
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

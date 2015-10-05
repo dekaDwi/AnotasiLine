@@ -3,7 +3,7 @@ package com.demeg.anotasiline.matriks;
 import java.text.DecimalFormat;
 
 /**
- * Created by demeg on 05-Oct-15.
+ * Created by deka dwi on 05-Oct-15.
  */
 public class Bezier {
     public final static float[][] basisBezier = {
