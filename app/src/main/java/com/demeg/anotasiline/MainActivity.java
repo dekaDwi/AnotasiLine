@@ -54,6 +54,7 @@ public class MainActivity extends ActionBarActivity {
     TextView textJudul, textLokasi, textResolusi, jumlahMembran;
     TouchImageView imageResult;
     List<float[]> l = new ArrayList<float[]>();
+    List<int[]> l2 = new ArrayList<int[]>();
     Drawable drawable;
     Rect imageBounds;
     KelompokSel Membran;
@@ -176,6 +177,7 @@ public class MainActivity extends ActionBarActivity {
         simpanMembran.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+//                List<int[]> list = new ArrayList<int[]>();
                 Membran.addLast(s);
                 jumlahMembran.setText("Jumlah membran : " + Membran.count);
                 canvasMaster.drawBitmap(undos.pop(), 0, 0, null);
@@ -186,11 +188,16 @@ public class MainActivity extends ActionBarActivity {
                 Elemen temp = sTemp.head;
                 if (!s.isEmpty()) {
                     point2(temp.x, temp.y, 2);
+//                    list.add(new int[]{x, y});
                     while (temp.next != null) {
                         temp = temp.next;
                         point2(temp.x, temp.y, 2);
+//                        list.add(new int[]{x, y});
                     }
                 }
+//                int[][] koor = sort(l2);
+//                label(koor);
+
                 s = new Sel();
                 sTemp = new Sel();
             }
@@ -205,7 +212,62 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
+    public int[][] sort(List<int[]> koor) {
+        int[][] hasil = new int[koor.size()][2];
+
+        for (int i = 0; i < koor.size(); i++) {
+            hasil[i] = koor.get(i);
+        }
+
+        for (int i = 1; i < koor.size(); i++) {
+            for (int j = koor.size() - 1; j >= i; j--) {
+                if (hasil[j - 1][1] > hasil[j][1]) {
+                    int[] temp = hasil[j - 1];
+                    hasil[j - 1] = hasil[j];
+                    hasil[j] = temp;
+                }
+            }
+        }
+
+        return hasil;
+    }
+
+    public void label(int[][] koor) {
+        int ymin = koor[0][1];
+        int ymax = koor[koor.length - 1][1];
+        for (int i = ymin; i <= ymax; i++) {
+            int xmax = 0;
+            for (int j = 0; j < koor.length; j++) {
+                if (koor[j][1] == i) {
+                    if (xmax < koor[j][0]) {
+                        xmax = koor[j][0];
+                    }
+                }
+            }
+            int xmin = xmax;
+            for (int j = 0; j < koor.length; j++) {
+                if (koor[j][1] == i) {
+                    if (xmin > koor[j][0]) {
+                        xmin = koor[j][0];
+                    }
+                }
+            }
+
+//            System.out.print(" - ");
+            for (int j = xmin; j <= xmax; j++) {
+//                System.out.print(j + "," + i + " - ");
+//                point2(j,i,2);
+            }
+//            System.out.println("");
+
+//            System.out.println("Y    : " + i);
+//            System.out.println("Xmin : " + xmin);
+//            System.out.println("Xmax : " + xmax);
+        }
+    }
+
     public void closeSpline(float[][] a) {
+        l2 = new ArrayList<int[]>();
         if (a.length <= 3) {
             return;
         }
@@ -236,6 +298,8 @@ public class MainActivity extends ActionBarActivity {
                 int x = Math.round(t2[1][b]);
                 int y = Math.round(t2[0][b]);
                 point2(y,x,3);
+                int[] titik = {y, x};
+                l2.add(titik);
                 s.enQueue(y, x);
                 sTemp.enQueue(y, x);
             }
