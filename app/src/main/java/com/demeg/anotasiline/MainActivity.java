@@ -64,8 +64,8 @@ public class MainActivity extends ActionBarActivity {
     double scalH, scalW;
     boolean boleh = false;
     Uri source;
-    Bitmap bitmapMaster, b;
-    Canvas canvasMaster;
+    Bitmap bitmapMaster, b, label;
+    Canvas canvasMaster, label2;
     Stack<Bitmap> undos = new Stack<Bitmap>();
 
     @Override
@@ -177,7 +177,6 @@ public class MainActivity extends ActionBarActivity {
         simpanMembran.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-//                List<int[]> list = new ArrayList<int[]>();
                 Membran.addLast(s);
                 jumlahMembran.setText("Jumlah membran : " + Membran.count);
                 canvasMaster.drawBitmap(undos.pop(), 0, 0, null);
@@ -195,8 +194,8 @@ public class MainActivity extends ActionBarActivity {
 //                        list.add(new int[]{x, y});
                     }
                 }
-//                int[][] koor = sort(l2);
-//                label(koor);
+                int[][] koor = sort(l2);
+                label(koor, Membran.count);
 
                 s = new Sel();
                 sTemp = new Sel();
@@ -207,6 +206,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 simpanFile();
+                simpanLabel();
             }
         });
 
@@ -232,7 +232,7 @@ public class MainActivity extends ActionBarActivity {
         return hasil;
     }
 
-    public void label(int[][] koor) {
+    public void label(int[][] koor, int obj) {
         int ymin = koor[0][1];
         int ymax = koor[koor.length - 1][1];
         for (int i = ymin; i <= ymax; i++) {
@@ -253,16 +253,9 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
 
-//            System.out.print(" - ");
             for (int j = xmin; j <= xmax; j++) {
-//                System.out.print(j + "," + i + " - ");
-//                point2(j,i,2);
+                point3(j, i, obj);
             }
-//            System.out.println("");
-
-//            System.out.println("Y    : " + i);
-//            System.out.println("Xmin : " + xmin);
-//            System.out.println("Xmax : " + xmax);
         }
     }
 
@@ -353,6 +346,22 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    public void simpanLabel() {
+        String namaFile = textJudul.getText().toString();
+        int name = namaFile.lastIndexOf(".");
+        String nama = namaFile.substring(0, name) + ".png";
+        try {
+            File root = new File(Environment.getExternalStorageDirectory(), "Notes");
+            if(!root.exists()) {
+                root.mkdirs();
+            }
+            File file = new File(root, nama);
+            label.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(file));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     //pembacaan file anotasi dari file yang sama jika ada
     public void readFile(){
         String namaFile = textJudul.getText().toString();
@@ -406,6 +415,8 @@ public class MainActivity extends ActionBarActivity {
 
     //bagian dari pembacaan file, untuk menggambar yang telah dianotasi
     public void gambarSel(){
+        int obj = 1;
+        l2 = new ArrayList<int[]>();
         Elemen e;
         Sel s;
         int x, y;
@@ -414,23 +425,35 @@ public class MainActivity extends ActionBarActivity {
             e = s.head;
             if(e != null) {
                 point2(e.x, e.y, 2);
+                l2.add(new int[]{e.x, e.y});
                 while(e.next != null) {
                     e = e.next;
                     point2(e.x, e.y, 2);
+                    l2.add(new int[]{e.x, e.y});
                 }
+                int[][] koor = sort(l2);
+                label(koor, obj);
+                obj++;
             }
             while(s.next != null) {
+                l2 = new ArrayList<int[]>();
                 s = s.next;
                 e = s.head;
                 if(e != null) {
                     point2(e.x, e.y, 2);
+                    l2.add(new int[]{e.x, e.y});
                     while(e.next != null) {
                         e = e.next;
                         point2(e.x, e.y, 2);
+                        l2.add(new int[]{e.x, e.y});
                     }
                 }
+                int[][] koor = sort(l2);
+                label(koor, obj);
+                obj++;
             }
         }
+
     }
 
     //untuk menggambar titik sesuai dengan masukkan touch dari user
@@ -472,7 +495,7 @@ public class MainActivity extends ActionBarActivity {
                     paint.setColor(Color.YELLOW);
                     break;
                 case 2 :
-                    paint.setColor(Color.RED);
+                    paint.setARGB(255, 255, 0, 0);
                     break;
                 case 3 :
                     paint.setColor(Color.BLUE);
@@ -481,6 +504,20 @@ public class MainActivity extends ActionBarActivity {
             paint.setStrokeWidth(3);
             canvasMaster.drawCircle(projectedX, projectedY, 3, paint);
             imageResult.invalidate();
+        }
+    }
+
+    public void point3(int x, int y, int obj){
+        if (x < 0 || y < 0 || x >bitmapMaster.getWidth() || y>bitmapMaster.getHeight()) {
+            return;
+        } else {
+            int projectedX = x;
+            int projectedY = y;
+            Paint paint = new Paint();
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.rgb(obj,obj,obj));
+            paint.setStrokeWidth(3);
+            label2.drawCircle(projectedX, projectedY, 3, paint);
         }
     }
 
@@ -511,9 +548,12 @@ public class MainActivity extends ActionBarActivity {
                             config = Bitmap.Config.ARGB_8888;
                         }
                         bitmapMaster = Bitmap.createBitmap(tempBitmap.getWidth(), tempBitmap.getHeight(), config);
+                        label = Bitmap.createBitmap(tempBitmap.getWidth(), tempBitmap.getHeight(), config);
                         undos.add(bitmapMaster);
                         canvasMaster = new Canvas(bitmapMaster);
+                        label2 = new Canvas(label);
                         canvasMaster.drawBitmap(tempBitmap, 0, 0, null);
+                        label2.drawBitmap(label, 0, 0, null);
                         imageResult.setImageBitmap(bitmapMaster);
                         drawable = imageResult.getDrawable();
                         imageBounds = drawable.getBounds();
@@ -522,7 +562,6 @@ public class MainActivity extends ActionBarActivity {
                         textResolusi.setText(x + " x " + y);
                         readFile();
                         boleh = true;
-//                        xy1.setText("X1: " + imageResult.getTopLeft()[1] + "   || Y1: " + imageResult.getTopLeft()[0]);
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -530,12 +569,6 @@ public class MainActivity extends ActionBarActivity {
             }
         }
     }
-//
-////    @Override
-//    public void onWindowFocusChanged(boolean hasFocus) {
-//        super.onWindowFocusChanged(hasFocus);
-//        readFile();
-//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
