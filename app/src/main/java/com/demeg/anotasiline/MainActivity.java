@@ -18,6 +18,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
+import android.util.TimingLogger;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -49,16 +50,19 @@ import java.util.Stack;
 
 public class MainActivity extends ActionBarActivity {
 
+
+
     final int RQS_IMAGE1 = 1;
     Button btnLoadImage, simpanMembran, simpanAnotasi;
     TextView textJudul, textLokasi, textResolusi, jumlahMembran;
     TouchImageView imageResult;
     List<float[]> l = new ArrayList<float[]>();
+    List<int[]> st = new ArrayList<int[]>();
     List<int[]> l2 = new ArrayList<int[]>();
     Drawable drawable;
     Rect imageBounds;
     KelompokSel Membran;
-    Sel s, sTemp;
+    Sel s;
     int x, y, cnt = 0;
     String lks;
     double scalH, scalW;
@@ -84,7 +88,6 @@ public class MainActivity extends ActionBarActivity {
         jumlahMembran = (TextView)findViewById(R.id.infoJumlahMembran);
         imageResult = (TouchImageView)findViewById(R.id.gambar);
         s = new Sel();
-        sTemp = new Sel();
         b = null;
 
         btnLoadImage.setOnClickListener(new OnClickListener() {
@@ -95,7 +98,6 @@ public class MainActivity extends ActionBarActivity {
                 startActivityForResult(intent, RQS_IMAGE1);
                 imageResult.resetZoom();
                 s = new Sel();
-                sTemp = new Sel();
                 boleh = false;
                 l = new ArrayList<float[]>();
                 simpanMembran.setEnabled(false);
@@ -129,7 +131,6 @@ public class MainActivity extends ActionBarActivity {
                                 undos.push(b);
                                 b = null;
                                 s = new Sel();
-                                sTemp = new Sel();
                                 cnt = 1;
                             } else {
                                 //mengembalikan bitmap yang telah disimpan, jika ada
@@ -140,7 +141,6 @@ public class MainActivity extends ActionBarActivity {
                                 undos.push(b);
                                 b = null;
                                 s = new Sel();
-                                sTemp = new Sel();
                                 imageResult.invalidate();
                             }
                             simpanMembran.setEnabled(false);
@@ -152,7 +152,9 @@ public class MainActivity extends ActionBarActivity {
                                     a[i][j] = l.get(i)[j];
                                 }
                             }
+
                             closeSpline(a);
+
                             break;
                         case MotionEvent.ACTION_MOVE:
                             //menandai sel/membran
@@ -177,6 +179,8 @@ public class MainActivity extends ActionBarActivity {
         simpanMembran.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                TimingLogger timings = new TimingLogger("TopicLogTag", "simpan membran");
+                rapikan();
                 Membran.addLast(s);
                 jumlahMembran.setText("Jumlah membran : " + Membran.count);
                 canvasMaster.drawBitmap(undos.pop(), 0, 0, null);
@@ -184,7 +188,7 @@ public class MainActivity extends ActionBarActivity {
                 undos.clear();
                 cnt = 0;
                 simpanAnotasi.setEnabled(true);
-                Elemen temp = sTemp.head;
+                Elemen temp = s.head;
                 if (!s.isEmpty()) {
                     point2(temp.x, temp.y, 2);
 //                    list.add(new int[]{x, y});
@@ -198,7 +202,8 @@ public class MainActivity extends ActionBarActivity {
                 label(koor, Membran.count);
 
                 s = new Sel();
-                sTemp = new Sel();
+                timings.addSplit("simpan membran");
+                timings.dumpToLog();
             }
         });
 
@@ -212,7 +217,18 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
+    public void rapikan(){
+        s.enQueue(st.get(0)[0], st.get(0)[1]);
+        for (int i = 1; i < st.size(); i++) {
+            if(st.get(i)[0] == st.get(i-1)[0] && st.get(i)[1] == st.get(i-1)[1]){
+            } else {
+                s.enQueue(st.get(i)[0], st.get(i)[1]);
+            }
+        }
+    }
+
     public int[][] sort(List<int[]> koor) {
+        TimingLogger timings = new TimingLogger("TopicLogTag", "sorting koordinat");
         int[][] hasil = new int[koor.size()][2];
 
         for (int i = 0; i < koor.size(); i++) {
@@ -228,11 +244,13 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
         }
-
+        timings.addSplit("sorting");
+        timings.dumpToLog();
         return hasil;
     }
 
     public void label(int[][] koor, int obj) {
+        TimingLogger timings = new TimingLogger("TopicLogTag", "labeling");
         int ymin = koor[0][1];
         int ymax = koor[koor.length - 1][1];
         for (int i = ymin; i <= ymax; i++) {
@@ -257,9 +275,12 @@ public class MainActivity extends ActionBarActivity {
                 point3(j, i, obj);
             }
         }
+        timings.addSplit("labelling");
+        timings.dumpToLog();
     }
 
     public void closeSpline(float[][] a) {
+        TimingLogger timings = new TimingLogger("TopicLogTag", "closeSpline");
         l2 = new ArrayList<int[]>();
         if (a.length <= 3) {
             return;
@@ -292,11 +313,14 @@ public class MainActivity extends ActionBarActivity {
                 int y = Math.round(t2[0][b]);
                 point2(y,x,3);
                 int[] titik = {y, x};
+                st.add(titik);
                 l2.add(titik);
                 s.enQueue(y, x);
-                sTemp.enQueue(y, x);
             }
         }
+        timings.addSplit("Reconstruct the curve");
+        timings.dumpToLog();
+
     }
 
     //membalikkan koordinat dari koordinat scale image menjadi koordinat asli
@@ -326,6 +350,7 @@ public class MainActivity extends ActionBarActivity {
 
     //penyimpanan file
     public void simpanFile() {
+        TimingLogger timings = new TimingLogger("TopicLogTag", "simpanFile");
         String namaFile = textJudul.getText().toString();
         int name = namaFile.lastIndexOf(".");
         String nama = namaFile.substring(0, name) + ".txt";
@@ -344,6 +369,8 @@ public class MainActivity extends ActionBarActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        timings.addSplit("simpan file");
+        timings.dumpToLog();
     }
 
     public void simpanLabel() {
@@ -364,6 +391,7 @@ public class MainActivity extends ActionBarActivity {
 
     //pembacaan file anotasi dari file yang sama jika ada
     public void readFile(){
+        TimingLogger timings = new TimingLogger("TopicLogTag", "membaca file");
         String namaFile = textJudul.getText().toString();
         int name = namaFile.lastIndexOf(".");
         String nama = namaFile.substring(0, name) + ".txt";
@@ -410,6 +438,8 @@ public class MainActivity extends ActionBarActivity {
             Membran = new KelompokSel("Membran");
             jumlahMembran.setText("Jumlah membran : " + Membran.count);
         }
+        timings.addSplit("Membaca file");
+        timings.dumpToLog();
 
     }
 
@@ -419,7 +449,7 @@ public class MainActivity extends ActionBarActivity {
         l2 = new ArrayList<int[]>();
         Elemen e;
         Sel s;
-        int x, y;
+//        int x, y;
         s = Membran.head;
         if(s != null) {
             e = s.head;
@@ -436,7 +466,7 @@ public class MainActivity extends ActionBarActivity {
                 obj++;
             }
             while(s.next != null) {
-                l2 = new ArrayList<int[]>();
+//                l2 = new ArrayList<int[]>();
                 s = s.next;
                 e = s.head;
                 if(e != null) {
@@ -523,6 +553,7 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        TimingLogger timings = new TimingLogger("TopicLogTag", "membukaGambar");
         super.onActivityResult(requestCode, resultCode, data);
         Bitmap tempBitmap;
         if(resultCode == RESULT_OK){
@@ -560,6 +591,8 @@ public class MainActivity extends ActionBarActivity {
                         int x = bitmapMaster.getWidth();
                         int y = bitmapMaster.getHeight();
                         textResolusi.setText(x + " x " + y);
+                        timings.addSplit("Membuka gambar");
+                        timings.dumpToLog();
                         readFile();
                         boleh = true;
                     } catch (FileNotFoundException e) {
