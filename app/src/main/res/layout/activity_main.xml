@@ -76,6 +76,18 @@
             android:layout_height="50dp"
             android:text="Simpan Anotasi"/>
 
+        <!--<TextView-->
+            <!--android:id="@+id/infoJumlahTitikU"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="25dp"-->
+            <!--android:text="Jumlah titik user  : 0"/>-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/infoJumlahTitikR"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="25dp"-->
+            <!--android:text="Jumlah titik rekon : 0"/>-->
+
     </LinearLayout>
 
 
